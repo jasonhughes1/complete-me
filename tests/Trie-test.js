@@ -22,7 +22,7 @@ describe('Class: Trie', () => {
     expect(trie.count).to.be.eq(0)
   })
 
-  describe('Method: insert()', () => {
+  describe('insert()', () => {
 
     it('should have a method called insert that marks a word as complete and counts the entries', () => {
       let trie = new Trie();
@@ -59,7 +59,7 @@ describe('Class: Trie', () => {
     })
   })
 
-  describe('Method: findNode()', () => {
+  describe('findNode()', () => {
 
     it('should return the last node of a string of text', () => {
       let trie = new Trie();
@@ -83,7 +83,7 @@ describe('Class: Trie', () => {
   })
 
 
-  describe('Method: count()', () => {
+  describe('count()', () => {
 
     it('should have a function that returns/counts the number of words in the trie', () => {
       let trie = new Trie();
@@ -98,4 +98,24 @@ describe('Class: Trie', () => {
       expect(trie.count).to.eq(6)
     })
   })
+  describe('suggest()', () => {
+
+     it('should return an array of possible matches that have shared letters', () => {
+       let trie = new Trie();
+
+       trie.insert('pizza')
+       trie.insert('pizzas')
+       trie.insert('pie')
+       trie.insert('pickle')
+       trie.insert('pices')
+       trie.insert('pitch')
+
+       let result = trie.suggest('pi')
+
+       expect(result).to.deep.eq(['pizza', 'pizzas', 'pie', 'pickle', 'pices', 'pitch'])
+     })
+  })
+
+
+
 })

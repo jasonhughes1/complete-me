@@ -41,8 +41,30 @@ export default class Trie {
     return node
   }
 
-
   count() {
     return this.count
+  }
+  
+  suggest(text, suggested) {
+    let node = this.findNode(text)
+    var suggestions = suggested || []
+
+    if (node.isWord) {
+      suggestions.push({word: text, timesSelected: node.timesSelected})
+    }
+
+    Object.keys(node.children).forEach((key) => {
+      this.suggest(text + key, suggestions)
+    })
+
+    suggestions.sort((a, b) => {
+      return b.timesSelected - a.timesSelected
+    })
+
+    let sortedArray = suggestions.map((obj) => {
+      return obj['word']
+    })
+
+    return sortedArray
   }
 }
