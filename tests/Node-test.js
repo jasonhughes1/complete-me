@@ -1,8 +1,9 @@
+
 import { expect } from 'chai';
-import Node from '../scripts/Node'
+import Node from '../scripts/node'
 
 describe('Class: Node', () => {
-  it('should have data as a default', function() {
+  it('should have data', function() {
     let node = new Node(0);
 
     expect(node.data).to.eq(0);
@@ -20,7 +21,7 @@ describe('Class: Node', () => {
     expect(node.isWord).to.eq(false);
   })
 
-  it('should default to having been selected zero times', () => {
+  it('should default to having never been selected', () => {
     let node = new Node(0);
 
     expect(node.timesSelected).to.eq(0);
