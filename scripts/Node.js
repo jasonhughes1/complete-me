@@ -1,8 +1,7 @@
 export default class Node {
-  constructor(data) {
-    this.data = data;
-    this.children = {} || null
+  constructor(letter = null) {
+    this.letter = letter
     this.isWord = false
-    this.timesSelected = 0
+    this.children = {}
   }
 }
