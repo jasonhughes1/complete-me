@@ -8,6 +8,8 @@ export default class Trie {
     this.wordFreq = []
   }
 
+
+
   insert(word) {
     let node = new Node()
 
@@ -35,15 +37,16 @@ export default class Trie {
     return this.wordCount
   }
 
+
   select(word) {
     let wordObj = {
       word: word,
       freq: 1
     }
-
     let foundWord = false
 
     if (this.wordFreq.length === 0) {
+
       this.wordFreq.push(wordObj)
       foundWord = true
     } else if (this.wordFreq.length > 0) {
@@ -58,8 +61,8 @@ export default class Trie {
     if (foundWord === false && this.wordFreq.length > 0) {
       this.wordFreq.push(wordObj)
     }
-
   }
+
 
   suggest(word) {
     let wordAsArray = [...word];
@@ -73,8 +76,8 @@ export default class Trie {
 
     const traverseTrie = (word, currNode) => {
       let keys = Object.keys(currNode.children);
-
       for (let k = 0; k < keys.length; k++) {
+
         const child = currNode.children[keys[k]];
         let newString = word + child.letter;
 
@@ -108,6 +111,7 @@ export default class Trie {
 
     sortedArray.forEach((obj) => {
       suggestionsArray.unshift(obj.word)
+
     })
 
     return suggestionsArray;

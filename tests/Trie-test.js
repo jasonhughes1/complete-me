@@ -131,47 +131,48 @@ describe('Trie functionality', () => {
   });
 
   describe('Method: suggest', () => {
-      let completeMe;
+    let completeMe;
 
-      beforeEach(function () {
-        completeMe = new Trie();
-        completeMe.insert('app');
-        completeMe.insert('apple');
-        completeMe.insert('applesauce');
-        completeMe.insert('apply');
-        completeMe.insert('apt');
-        completeMe.insert('cat');
-        completeMe.insert('x-ray');
-      })
+    beforeEach(function () {
+      completeMe = new Trie();
+      completeMe.insert('app');
+      completeMe.insert('apple');
+      completeMe.insert('applesauce');
+      completeMe.insert('apply');
+      completeMe.insert('apt');
+      completeMe.insert('cat');
+      completeMe.insert('x-ray');
+    })
 
-      it('should return all children words of suggestion', () => {
+    it('should return all children words of suggestion', () => {
 
-        let suggestions = completeMe.suggest('app');
+      let suggestions = completeMe.suggest('app');
 
-        expect(suggestions).to.deep.equal([ 'app', 'apple', 'applesauce', 'apply' ])
+      expect(suggestions).to.deep.equal([ 'app', 'apple', 'applesauce', 'apply' ])
 
-        suggestions = completeMe.suggest('applesb');
+      suggestions = completeMe.suggest('applesb');
 
-        expect(suggestions).to.deep.equal([])
+      expect(suggestions).to.deep.equal([])
 
-        suggestions = completeMe.suggest('apple');
+      suggestions = completeMe.suggest('apple');
 
-        expect(suggestions).to.deep.equal([ 'apple', 'applesauce' ])
+      expect(suggestions).to.deep.equal([ 'apple', 'applesauce' ])
 
-        suggestions = completeMe.suggest('ca.');
+      suggestions = completeMe.suggest('ca.');
 
-        expect(suggestions).to.deep.equal([])
+      expect(suggestions).to.deep.equal([])
 
-        suggestions = completeMe.suggest('x');
+      suggestions = completeMe.suggest('x');
 
-        expect(suggestions).to.deep.equal([ 'x-ray' ])
-      })
-    });
+      expect(suggestions).to.deep.equal([ 'x-ray' ])
+    })
+  });
 
   describe('Method: select', () => {
 
     it('should be able to select order of words returned by suggest', () => {
       let completeMe = new Trie()
+
       completeMe.insert('app')
       completeMe.insert('apple')
       completeMe.insert('applesauce')
