@@ -1,70 +1,122 @@
 
-import Node from '../scripts/node'
-import fs from 'fs'
-const text = "/usr/share/dict/words"
-
+import Node from './Node'
 
 export default class Trie {
   constructor() {
-    this.rootNode = new Node(null)
-    this.count = 0;
+    this.root = null
+    this.wordCount = 0
+    this.wordFreq = []
   }
-
 
   insert(word) {
-    let node = this.rootNode
-    let splitArray = word.split('')
+    let node = new Node()
 
-    splitArray.forEach((letter) => {
+    if (!this.root) {
+      this.root = node
+    }
 
-      if (node.children[letter]) {
-        return node = node.children[letter]
+    let letters = [...word.toLowerCase()]
+    let currentNode = this.root
+
+    letters.forEach((letter) => {
+      if (!currentNode.children[letter]) {
+        currentNode.children[letter] = new Node(letter)
       }
-      node.children[letter] = new Node(letter);
-      node = node.children[letter];
-    })
-    node.isWord = true
-    this.count++
-  }
-
-
-  findNode(text) {
-    let node = this.rootNode
-    let splitArray = text.split('')
-
-    splitArray.forEach((letter) => {
-      if (node.children[letter]) {
-        return node = node.children[letter]
-      }
+      currentNode = currentNode.children[letter]
     })
 
-    return node
+    if (currentNode.isWord !== true) {
+      currentNode.isWord = true
+      this.wordCount++
+    }
   }
 
   count() {
-    return this.count
+    return this.wordCount
   }
-  
-  suggest(text, suggested) {
-    let node = this.findNode(text)
-    var suggestions = suggested || []
 
-    if (node.isWord) {
-      suggestions.push({word: text, timesSelected: node.timesSelected})
+  select(word) {
+    let wordObj = {
+      word: word,
+      freq: 1
     }
 
-    Object.keys(node.children).forEach((key) => {
-      this.suggest(text + key, suggestions)
+    let foundWord = false
+
+    if (this.wordFreq.length === 0) {
+      this.wordFreq.push(wordObj)
+      foundWord = true
+    } else if (this.wordFreq.length > 0) {
+      this.wordFreq.forEach((obj) => {
+        if (word === obj.word) {
+          foundWord = true
+          obj.freq += 1
+        }
+      })
+    }
+
+    if (foundWord === false && this.wordFreq.length > 0) {
+      this.wordFreq.push(wordObj)
+    }
+
+  }
+
+  suggest(word) {
+    let wordAsArray = [...word];
+    let currNode = this.root;
+    let suggestionsArray = [];
+    let sortedArray = []
+
+    for (let i = 0; i < wordAsArray.length; i++) {
+      currNode = currNode.children[wordAsArray[i]]
+    }
+
+    const traverseTrie = (word, currNode) => {
+      let keys = Object.keys(currNode.children);
+
+      for (let k = 0; k < keys.length; k++) {
+        const child = currNode.children[keys[k]];
+        let newString = word + child.letter;
+
+        if (child.isWord) {
+          suggestionsArray.push(newString);
+        }
+        traverseTrie(newString, child);
+      }
+    };
+
+    if (currNode && currNode.isWord) {
+      suggestionsArray.push(word)
+    }
+
+    if (currNode) {
+      traverseTrie(word, currNode);
+    }
+
+    this.wordFreq.forEach((wordObj) => {
+      suggestionsArray.forEach((arrayWord, i) => {
+        if (wordObj.word === arrayWord) {
+          sortedArray.push(wordObj)
+          suggestionsArray.splice(i, 1)
+        }
+      })
     })
 
-    suggestions.sort((a, b) => {
-      return b.timesSelected - a.timesSelected
+    sortedArray.sort((a, b) => {
+      return a.freq - b.freq
     })
 
-    let sortedArray = suggestions.map((obj) => {
-      return obj['word']
+    sortedArray.forEach((obj) => {
+      suggestionsArray.unshift(obj.word)
     })
 
-    return sortedArray
+    return suggestionsArray;
+  }
+
+
+  populate(dictionary) {
+    dictionary.forEach(word => {
+      this.insert(word);
+    })
   }
 }

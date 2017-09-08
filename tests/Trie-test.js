@@ -1,121 +1,218 @@
-
 import { expect } from 'chai';
 import Trie from '../scripts/Trie'
+import Node from '../scripts/Node'
+const text = "/usr/share/dict/words"
+const fs = require('fs')
+const dictionary = fs.readFileSync(text).toString().trim().split('\n')
 
+describe('Trie functionality', () => {
 
-describe('Class: Trie', () => {
-  it('should be an instance of trie', function() {
-    let trie = new Trie();
+  describe('Method: insert', () => {
+    let completeMe;
 
-    expect(trie).to.be.instanceof(Trie);
+    beforeEach(function () {
+      completeMe = new Trie();
+    })
+
+    it('should have a root', () => {
+      expect(completeMe.root).to.equal(null);
+    })
+
+    it('should be able to insert a word and the root should be a Node', () => {
+      completeMe.insert('apple');
+
+      expect(completeMe.root).to.be.instanceOf(Node)
+    })
+
+    it('should be able to insert a word and root should have children', () => {
+      completeMe.insert('apple');
+
+      expect(completeMe.root.children.a.letter).to.be.equal('a')
+
+      expect(
+        completeMe.root
+        .children.a
+        .children.p
+        .letter
+      ).to.equal('p')
+
+    })
+
+    it('should be able to insert a word and the last letter should have a isWord property of true', () => {
+      completeMe.insert('apple');
+
+      expect(
+        completeMe.root
+        .children.a
+        .children.p
+        .children.p
+        .children.l
+        .children.e
+        .letter
+      ).to.equal('e')
+
+      expect(
+        completeMe.root
+        .children.a
+        .children.p
+        .children.p
+        .children.l
+        .children.e
+        .isWord
+      ).to.equal(true)
+    })
+
+    it('should be able to insert multiple words and children objects should have multiple props', () => {
+      completeMe.insert('apple');
+      completeMe.insert('app');
+
+      let childKeys = Object.keys(
+        completeMe.root
+        .children.a
+        .children.p
+        .children
+      );
+
+      expect(childKeys).to.deep.equal(['p']);
+      expect(completeMe.root
+      .children.a
+      .children.p
+      .children.p.isWord).to.eq(true)
+
+    })
+
+    it('should have nodes which represent incomplete words where the isWord prop is false', () => {
+      completeMe.insert('apple');
+
+      expect(
+        completeMe.root
+        .children.a
+        .children.p
+        .children.p
+        .children.l
+        .isWord
+      ).to.equal(false);
+
+    })
+  })
+
+  describe('Method: count', () => {
+    let completeMe
+
+    beforeEach(() => {
+      completeMe = new Trie();
+    })
+
+    it('should return number of words inserted', () => {
+      expect(completeMe.count()).to.equal(0);
+
+      completeMe.insert('ape');
+      expect(completeMe.count()).to.equal(1);
+
+      completeMe.insert('app');
+      expect(completeMe.count()).to.equal(2);
+
+      completeMe.insert('apple');
+      expect(completeMe.count()).to.equal(3);
+
+      completeMe.insert('apples');
+      expect(completeMe.count()).to.equal(4);
+    })
+
+    it('should not change count if duplicate words are inserted', () => {
+      expect(completeMe.count()).to.equal(0);
+
+      completeMe.insert('ape');
+      expect(completeMe.count()).to.equal(1);
+
+      completeMe.insert('ape');
+      expect(completeMe.count()).to.equal(1);
+    })
   });
 
-  it('should have a root node with a value of null', () => {
-    let trie = new Trie();
+  describe('Method: suggest', () => {
+      let completeMe;
 
-    expect(trie.rootNode.data).to.eq(null)
-  })
+      beforeEach(function () {
+        completeMe = new Trie();
+        completeMe.insert('app');
+        completeMe.insert('apple');
+        completeMe.insert('applesauce');
+        completeMe.insert('apply');
+        completeMe.insert('apt');
+        completeMe.insert('cat');
+        completeMe.insert('x-ray');
+      })
 
-  it('should have a counter that defaults to zero', () => {
-    let trie = new Trie();
+      it('should return all children words of suggestion', () => {
 
-    expect(trie.count).to.be.eq(0)
-  })
+        let suggestions = completeMe.suggest('app');
 
-  describe('insert()', () => {
+        expect(suggestions).to.deep.equal([ 'app', 'apple', 'applesauce', 'apply' ])
 
-    it('should have a method called insert that marks a word as complete and counts the entries', () => {
-      let trie = new Trie();
+        suggestions = completeMe.suggest('applesb');
 
-      trie.insert('jason')
+        expect(suggestions).to.deep.equal([])
 
-      expect(trie.findNode('jason').isWord).to.eq(true)
-      expect(trie.count).to.eq(1)
-    })
+        suggestions = completeMe.suggest('apple');
 
-    it('should only insert new nodes where two words differentiate from one another', () => {
-      let trie = new Trie();
+        expect(suggestions).to.deep.equal([ 'apple', 'applesauce' ])
 
-      trie.insert('art')
-      trie.insert('arts')
-      trie.insert('arty')
+        suggestions = completeMe.suggest('ca.');
 
-      expect(trie.rootNode.children.a.data).to.eq('a')
-      expect(trie.rootNode.children.a.children.r.data).to.eq('r')
-      expect(trie.rootNode.children.a.children.r.children.t.data).to.eq('t')
-      expect(trie.rootNode.children.a.children.r.children.t.children.s.data).to.eq('s')
-      expect(trie.rootNode.children.a.children.r.children.t.children.y.data).to.eq('y')
-    })
+        expect(suggestions).to.deep.equal([])
 
-    it('should mark nodes as word endings even when words overlap one another', () => {
-      let trie = new Trie();
+        suggestions = completeMe.suggest('x');
 
-      trie.insert('car')
-      trie.insert('carts')
+        expect(suggestions).to.deep.equal([ 'x-ray' ])
+      })
+    });
 
-      expect(trie.findNode('ca').isWord).to.eq(false)
-      expect(trie.findNode('car').isWord).to.eq(true)
-      expect(trie.findNode('carts').isWord).to.eq(true)
-    })
-  })
+  describe('Method: select', () => {
 
-  describe('findNode()', () => {
+    it('should be able to select order of words returned by suggest', () => {
+      let completeMe = new Trie()
+      completeMe.insert('app')
+      completeMe.insert('apple')
+      completeMe.insert('applesauce')
+      completeMe.insert('apply')
 
-    it('should return the last node of a string of text', () => {
-      let trie = new Trie();
+      expect(completeMe.suggest('app')).to.deep.equal([ 'app', 'apple', 'applesauce', 'apply' ])
+      //
+      completeMe.select('apple');
+      //
+      expect(completeMe.suggest('app')).to.deep.equal([ 'apple', 'app', 'applesauce', 'apply' ])
 
-      trie.insert('phone')
-      trie.insert('arts')
+      completeMe.select('applesauce');
 
-      expect(trie.findNode('p').data).to.eq('p')
-      expect(trie.findNode('ph').data).to.eq('h')
-      expect(trie.findNode('pho').data).to.eq('o')
-      expect(trie.findNode('ar').data).to.eq('r')
-    })
+      expect(completeMe.suggest('app')).to.deep.equal([ 'applesauce', 'apple', 'app', 'apply' ])
 
-    it('should return the last node of a string as a structured object', () => {
-      let trie = new Trie();
+      completeMe.select('apple');
 
-      trie.insert('phone')
+      expect(completeMe.suggest('app')).to.deep.equal([  'apple', 'applesauce', 'app', 'apply' ])
 
-      expect(trie.findNode('phon')).to.deep.eq({"children": {"e": {"children": {}, "data": "e", "isWord": true, "timesSelected": 0}}, "data": "n", "isWord": false, "timesSelected": 0})
-    })
-  })
+      completeMe.select('apply');
 
+      expect(completeMe.suggest('app')).to.deep.equal([ 'apple', 'apply', 'applesauce', 'app' ])
+      //
+      completeMe.select('app');
 
-  describe('count()', () => {
+      expect(completeMe.suggest('app')).to.deep.equal([ 'apple', 'app', 'apply', 'applesauce' ])
 
-    it('should have a function that returns/counts the number of words in the trie', () => {
-      let trie = new Trie();
+      completeMe.select('app');
 
-      trie.insert('pizza')
-      trie.insert('pizzas')
-      trie.insert('piz')
-      trie.insert('pickle')
-      trie.insert('pizzeria')
-      trie.insert('pitch')
+      expect(completeMe.suggest('app')).to.deep.equal([ 'app', 'apple', 'apply', 'applesauce' ])
 
-      expect(trie.count).to.eq(6)
     })
   })
-  describe('suggest()', () => {
 
-     it('should return an array of possible matches that have shared letters', () => {
-       let trie = new Trie();
+  describe('Method: populate', () => {
 
-       trie.insert('pizza')
-       trie.insert('pizzas')
-       trie.insert('pie')
-       trie.insert('pickle')
-       trie.insert('pices')
-       trie.insert('pitch')
+    it('should populate the Trie with the dictionary', () => {
+      var completion = new Trie()
 
-       let result = trie.suggest('pi')
-
-       expect(result).to.deep.eq(['pizza', 'pizzas', 'pie', 'pickle', 'pices', 'pitch'])
-     })
+      completion.populate(dictionary)
+      expect(completion.count()).to.eq(234371)
+    }).timeout(3000)
   })
-
-
-
 })

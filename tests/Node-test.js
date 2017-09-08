@@ -1,29 +1,27 @@
 
 import { expect } from 'chai';
-import Node from '../scripts/node'
+import Node from '../scripts/Node';
 
-describe('Class: Node', () => {
-  it('should have data', function() {
-    let node = new Node(0);
+describe('Node functionality', () => {
+  let node;
 
-    expect(node.data).to.eq(0);
-  });
-
-  it('should have a children object', function() {
-    let node = new Node(0);
-
-    expect(node.children).to.deep.eq({});
-  });
-
-  it('should default to not being a word', () => {
-    let node = new Node(0);
-
-    expect(node.isWord).to.eq(false);
+  beforeEach(() => {
+    node = new Node()
   })
 
-  it('should default to having never been selected', () => {
-    let node = new Node(0);
+  it('should be a thing', () => {
+    expect(node).to.exist
+  })
 
-    expect(node.timesSelected).to.eq(0);
+  it('should start out with no letters', () => {
+    expect(node.letter).to.equal(null)
+  })
+
+  it('should not start out as a word', () => {
+    expect(node.isWord).to.equal(false);
+  })
+
+  it('should have no children', () => {
+    expect(node.children).to.deep.equal({});
   })
 })
